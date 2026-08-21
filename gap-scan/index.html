@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Free sample AI Use Documentation Gap Scan — informational, not legal advice.">
+    <title>AI Documentation Gap Scan — Validation Page</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f8f9fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        h1 { color: #1a1a2e; border-bottom: 2px solid #e94560; padding-bottom: .5rem; }
+        h2 { color: #16213e; margin-top: 1.5rem; }
+        .disclaimer {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: .9rem;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,.08);
+            margin: 1rem 0;
+        }
+        form label { display: block; margin: .5rem 0 .2rem; font-weight: 600; }
+        form input, form textarea, form select {
+            width: 100%;
+            padding: .5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: .9rem;
+        }
+        form textarea { min-height: 80px; resize: vertical; }
+        button {
+            background: #16213e;
+            color: white;
+            border: none;
+            padding: .75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        button:hover { background: #0f3460; }
+        .footer { font-size: .8rem; color: #888; margin-top: 2rem; }
+        .checkbox-group { display: flex; align-items: flex-start; gap: .5rem; }
+        .checkbox-group input { margin-top: .2rem; }
+    </style>
+</head>
+<body>
+
+<h1>AI Use Documentation Gap Scan</h1>
+
+<div class="disclaimer">
+    <strong>Important:</strong> This is an informational service, not legal advice.
+    This is a <strong>free sample redacted assessment</strong> produced under
+    Experiment EXP-89C77CCCA3FE46. No payment is collected. No outreach is performed
+    until owner approval.
+</div>
+
+<div class="card">
+    <h2>What You Get</h2>
+    <p>A structured review of your AI use mapped against current August 2026
+       documentation requirements under:</p>
+    <ul>
+        <li><strong>EU AI Act Article 50</strong> — transparency obligations (effective Aug 2, 2026)</li>
+        <li><strong>Colorado ADMT Act (SB 26-189)</strong> — automated decision-making in consequential decisions</li>
+        <li><strong>Colorado Chatbot Safety Act (HB 26-1263)</strong> — public-facing chatbot safety</li>
+        <li><strong>NIST AI RMF + FTC guidance</strong> — US best practices</li>
+    </ul>
+    <p><strong>Candidate service price:</strong> $99 (one-time, fixed scope)</p>
+</div>
+
+<div class="card">
+    <h2>Download Free Sample</h2>
+    <p>Get the redacted sample assessment to see the structure before requesting
+       your own.</p>
+    <a href="sample_redacted_assessment.md" download>
+        <button type="button">Download Sample PDF (Markdown)</button>
+    </a>
+</div>
+
+<div class="card">
+    <h2>Request Details</h2>
+    <p>Submit your information and we'll review your qualification. We follow up
+       within 2 business days.</p>
+    <form id="gapScanForm" action="/submit-gap-scan" method="POST">
+        <label for="business_name">Business Name *</label>
+        <input type="text" id="business_name" name="business_name" required>
+
+        <label for="website">Website / Product URL *</label>
+        <input type="url" id="website" name="website" required
+               placeholder="https://yourbusiness.com">
+
+        <label for="email">Email Address *</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="phone">Phone (optional)</label>
+        <input type="tel" id="phone" name="phone"
+               placeholder="(555) 123-4567">
+
+        <label for="ai_systems">AI Systems in Use (brief description) *</label>
+        <textarea id="ai_systems" name="ai_systems" required
+                  placeholder="e.g., customer service chatbot, product image generator, hiring screening AI"></textarea>
+
+        <label for="deployment">Your Role</label>
+        <select id="deployment" name="deployment">
+            <option value="provider">Provider (I built or offer the AI system)</option>
+            <option value="deployer">Deployer (I use an AI system I didn't build)</option>
+            <option value="self_hosted">Self-hosted</option>
+            <option value="saas">SaaS user (e.g., Shopify app, Zapier)</option>
+            <option value="unsure">Not sure</option>
+        </select>
+
+        <label>Geography Served (check all that apply) *</label>
+        <div class="checkbox-group">
+            <input type="checkbox" id="geo_eu" name="geography" value="eu" required>
+            <label for="geo_eu">European Union</label>
+        </div>
+        <div class="checkbox-group">
+            <input type="checkbox" id="geo_co" name="geography" value="colorado" required>
+            <label for="geo_co">Colorado, USA</label>
+        </div>
+        <div class="checkbox-group">
+            <input type="checkbox" id="geo_other" name="geography_other" value="other">
+            <label for="geo_other">Other US states / international</label>
+        </div>
+
+        <label for="source">How did you hear about this? *</label>
+        <input type="text" id="source" name="source" required
+               placeholder="e.g., Planet AllMatt YouTube, search, friend">
+
+        <div class="checkbox-group">
+            <input type="checkbox" id="consent" name="consent" required>
+            <label for="consent">I consent to being contacted by Documentation Group regarding this request. You can unsubscribe at any time. *</label>
+        </div>
+
+        <button type="submit">Request Details</button>
+    </form>
+</div>
+
+<p class="footer">
+    Produced by Documentation Group for Planet AllMatt.<br>
+    Experiment EXP-89C77CCCA3FE46 | Cost Mode: LOCAL (no paid spend) |
+    Authority Tier: 0 (owner-approved outreach required)<br>
+    This page collects no analytics. Traffic measured via form submissions only.
+</p>
+
+<script>
+// Form handler for gap scan interest form
+document.getElementById('gapScanForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = {};
+    formData.forEach((value, key) => {
+        if (key.endsWith('[]')) {
+            if (!data[key]) data[key] = [];
+            data[key].push(value);
+        } else {
+            data[key] = value;
+        }
+    });
+    data.timestamp = new Date().toISOString();
+    data.user_agent = navigator.userAgent;
+    data.session_duration = window.performance ? performance.now() / 1000 : 0;
+    
+    // Qualify: business name + website + AI use case + consent
+    const qualified = data.business_name && data.website && data.ai_use_case && data.consent;
+    
+    try {
+        const response = await fetch('/submit-gap-scan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...data, qualified: !!qualified })
+        });
+        if (response.ok) {
+            alert('Thank you. We will review your request within 2 business days.');
+        } else {
+            throw new Error('Server error');
+        }
+    } catch (err) {
+        // Local fallback
+        const store = JSON.parse(localStorage.getItem('gap_scan_submissions') || '[]');
+        store.push({ ...data, qualified: !!qualified });
+        localStorage.setItem('gap_scan_submissions', JSON.stringify(store));
+        alert('Thank you. We will review your request within 2 business days.');
+    }
+    e.target.reset();
+});
+</script>
+</body>
+</html>

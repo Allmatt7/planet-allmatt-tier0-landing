@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creator Format Kit — Free Sample | Planet AllMatt</title>
+<style>
+body { font-family: -apple-system, sans-serif; max-width: 720px; margin: 0 auto; padding: 2rem; background: #f8f9fa; color: #222; }
+h1 { color: #e63946; } .card { background: white; border: 1px solid #ddd; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; }
+form { background: #fff; border: 2px solid #e63946; border-radius: 8px; padding: 2rem; margin: 1rem 0; }
+input, textarea, select { width: 100%; padding: .6rem; margin: .3rem 0 1rem; border: 1px solid #ccc; border-radius: 4px; }
+button { background: #e63946; color: white; border: none; padding: .8rem 2rem; font-size: 1rem; border-radius: 4px; cursor: pointer; width: 100%; }
+</style>
+</head>
+<body>
+<h1>Creator Format Kit</h1>
+<p><strong>Free Sample:</strong> Turn any trend into an original, copyright-safe Short in 10 minutes.</p>
+
+<div class="card">
+<h2>What's Inside</h2>
+<ul>
+<li><strong>4-Step Trend-to-Original Framework</strong> — Abstract any trend, collect evidence, apply commentary modes, assemble original content</li>
+<li><strong>5 Commentary Modes</strong> — Documentary, regulatory, business, cultural, future projection</li>
+<li><strong>Source Attribution Templates</strong> — Properly cite sources to claim fair use for commentary</li>
+<li><strong>Hook & Pacing Library</strong> — 20 hook patterns mapped to trending formats</li>
+<li><strong>Red Flag Checklist</strong> — 12 warning signs your content might be too close to a copy</li>
+</ul>
+</div>
+
+<form id="format-kit-form">
+<h2>Download Free Sample</h2>
+<p>Enter your email to get the 3-page sample (Pages 1-3 of the 8-page toolkit).</p>
+<input type="email" name="email" placeholder="Your email *" required>
+<input type="text" name="creator_name" placeholder="Your creator name / channel">
+<select name="platform"><option value="">Primary platform</option><option>TikTok</option><option>Instagram</option><option>YouTube</option><option>Other</option></select>
+<button type="submit">Download Sample — No Spam, Unsubscribe Anytime</button>
+</form>
+
+<p style="font-size: .85rem; color: #888;">Produced by Documentation Group for Planet AllMatt. This sample is evidence-linked original content. No copyright-protected material included.</p>
+
+<script>
+document.getElementById('format-kit-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = e.target.email.value;
+    const data = {
+        email,
+        creator_name: e.target.creator_name.value,
+        platform: e.target.platform.value,
+        timestamp: new Date().toISOString(),
+        user_agent: navigator.userAgent,
+        session_duration: window.performance ? performance.now()/1000 : 0
+    };
+    // Client-side tracking only (no third-party analytics)
+    const store = JSON.parse(localStorage.getItem('format_kit_downloads') || '[]');
+    store.push(data);
+    localStorage.setItem('format_kit_downloads', JSON.stringify(store));
+    alert('Sample ready! Download link: the 3-page PDF sample will download now.');
+    // Trigger download of sample
+    const link = document.createElement('a');
+    link.href = 'sample_three_page.pdf.md';
+    link.download = 'creator-format-kit-sample.md';
+    link.click();
+    e.target.reset();
+});
+</script>
+</body>
+</html>
