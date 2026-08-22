@@ -91,20 +91,73 @@
             // Store in localStorage for the parent window to pick up
             localStorage.setItem('tiktok_auth_payload', JSON.stringify(payload));
 
-            document.getElementById('status').innerText = 'Login successful! You can close this window.';
-
-            // If opened in a popup, send message to opener and close
-            if (window.opener) {
-                window.opener.postMessage({
-                    type: 'tiktok_auth_result',
-                    ...payload
-                }, '*');
-                window.close();
+            // If we have a code, exchange it for an access token via our worker
+            if (code) {
+                document.getElementById('status').innerText = 'Exchanging authorization code for access token...';
+                
+                // Exchange code for token via Cloudflare Worker
+                fetch('https://hermes-tiktok-webhook.matthew-mickens1.workers.dev/oauth/callback?code=' + encodeURIComponent(code) + '&state=' + encodeURIComponent(urlParams.get('state') || ''), {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(tokenData => {
+                    if (tokenData.status === 'token_received') {
+                        payload.access_token = '***REDACTED***';
+                        payload.token_type = 'Bearer';
+                        payload.token_expires_in = tokenData.expires_in;
+                        localStorage.setItem('tiktok_auth_payload', JSON.stringify(payload));
+                        document.getElementById('status').innerText = 'Login successful! Access token received.';
+                    } else if (tokenData.error) {
+                        document.getElementById('status').innerText = 'Token exchange: ' + (tokenData.note || tokenData.error);
+                    } else {
+                        document.getElementById('status').innerText = 'Login successful! You can close this window.';
+                    }
+                    
+                    // Notify parent window
+                    if (window.opener) {
+                        window.opener.postMessage({
+                            type: 'tiktok_auth_result',
+                            ...payload,
+                            token_status: tokenData.status || 'received',
+                            token_type: 'Bearer',
+                        }, '*');
+                        setTimeout(() => window.close(), 1000);
+                    } else {
+                        setTimeout(() => {
+                            window.location.href = 'https://allmatt7.github.io/planet-allmatt-tier0-landing/sandbox-demo.html';
+                        }, 2000);
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('status').innerText = 'Token exchange failed: ' + err.message + '. Login data stored.';
+                    if (window.opener) {
+                        window.opener.postMessage({
+                            type: 'tiktok_auth_result',
+                            ...payload,
+                        }, '*');
+                        setTimeout(() => window.close(), 2000);
+                    } else {
+                        setTimeout(() => {
+                            window.location.href = 'https://allmatt7.github.io/planet-allmatt-tier0-landing/sandbox-demo.html';
+                        }, 2000);
+                    }
+                });
             } else {
-                // If not a popup, redirect to main page after delay
-                setTimeout(() => {
-                    window.location.href = 'https://allmatt7.github.io/planet-allmatt-tier0-landing/';
-                }, 2000);
+                document.getElementById('status').innerText = 'Login successful! You can close this window.';
+                if (window.opener) {
+                    window.opener.postMessage({
+                        type: 'tiktok_auth_result',
+                        ...payload,
+                    }, '*');
+                    window.close();
+                } else {
+                    setTimeout(() => {
+                        window.location.href = 'https://allmatt7.github.io/planet-allmatt-tier0-landing/';
+                    }, 2000);
+                }
             }
         } else {
             document.getElementById('status').innerText = 'No authorization data received.';
