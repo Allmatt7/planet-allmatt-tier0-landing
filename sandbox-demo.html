@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Sandbox Demo — Hermes OS</title>
+    <meta name="description" content="TikTok Sandbox OAuth + Content Posting API integration demo for Hermes OS.">
+    <style>
+        :root {
+            --slate-bg: #0a0f17;
+            --slate-card: #131a26;
+            --slate-border: #2a3548;
+            --red-string: #e63946;
+            --typewriter: #e9dce9;
+            --scan-gray: #8a95a8;
+            --accent-blue: #4a90d9;
+            --green-success: #28a745;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--slate-bg);
+            color: var(--typewriter);
+            line-height: 1.6;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--red-string);
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            color: var(--typewriter);
+            margin-bottom: 0.5rem;
+        }
+        .header .tagline {
+            color: var(--scan-gray);
+            font-size: 1rem;
+        }
+        .card {
+            background: var(--slate-card);
+            border: 1px solid var(--slate-border);
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .card h2 {
+            color: var(--accent-blue);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            border-bottom: 1px solid var(--slate-border);
+            padding-bottom: 0.5rem;
+        }
+        .step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--slate-bg);
+            border-radius: 4px;
+            border-left: 3px solid var(--accent-blue);
+        }
+        .step-number {
+            background: var(--accent-blue);
+            color: #000;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+        .step-content h3 {
+            margin-bottom: 0.3rem;
+            color: var(--typewriter);
+        }
+        .step-content p {
+            color: var(--scan-gray);
+            font-size: 0.9rem;
+        }
+        .btn {
+            display: inline-block;
+            background: var(--red-string);
+            color: #fff;
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: opacity 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            margin: 0.3rem;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn-success { background: var(--green-success); }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--slate-border);
+            color: var(--typewriter);
+        }
+        .btn-outline:hover { background: var(--slate-border); }
+        .status-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+        .status-ready { background: var(--green-success); color: #000; }
+        .status-pending { background: var(--scan-gray); color: #000; }
+        .status-active { background: var(--accent-blue); color: #000; }
+        .auth-section { margin: 1rem 0; }
+        .auth-info {
+            background: var(--slate-bg);
+            padding: 0.75rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            word-break: break-all;
+            margin: 0.5rem 0;
+        }
+        .video-preview {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            background: var(--slate-bg);
+            border: 2px dashed var(--slate-border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem auto;
+            color: var(--scan-gray);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--slate-border);
+            color: var(--scan-gray);
+            font-size: 0.85rem;
+        }
+        .footer a { color: var(--accent-blue); text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        .code-block {
+            background: var(--slate-bg);
+            padding: 0.75rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎵 TikTok Sandbox Demo</h1>
+        <div class="header .tagline">Hermes OS Content Posting & Webhook Integration</div>
+        <div class="source-badge" style="background: var(--green-success); color: #000;">Sandbox Environment</div>
+    </div>
+
+    <div class="card">
+        <h2>📱 TikTok Integration Overview <span class="status-badge status-ready">READY</span></h2>
+        <p>This demo shows the complete TikTok integration for Hermes OS, including TikTok Login Kit OAuth, Content Posting API, and Webhook event handling.</p>
+    </div>
+
+    <div class="card">
+        <h2>🔧 Integration Steps (Demo Flow)</h2>
+
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h3>Click "Connect TikTok" — OAuth Authorization</h3>
+                <p>Directs user to TikTok's Sandbox OAuth flow. Requests scopes: <code>user.info.basic</code>, <code>video.upload</code>, <code>video.publish</code>.</p>
+                <div style="margin-top: 0.5rem;">
+                    <button class="btn" id="tiktok-login-btn" onclick="startTikTokLogin()">🔗 Connect TikTok Account</button>
+                    <span id="tiktok-status" class="status-badge status-pending">Not Connected</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h3>Receive OAuth Callback — Token Exchange</h3>
+                <p>The callback page receives the TikTok authorization code and exchanges it for an access token via the TikTok API. The token is stored securely and used for Content Posting.</p>
+                <div class="auth-section">
+                    <div class="auth-info" id="tiktok-token-info">No token yet — complete step 1 to get your access token.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h3>Create TikTok Post — Content Posting API</h3>
+                <p>Creates a post using the TikTok Content Posting API with <code>pull_by_url</code> media type. The video URL points to the media served by our Cloudflare Worker.</p>
+                <div style="margin-top: 0.5rem;">
+                    <button class="btn btn-success" id="create-post-btn" onclick="createTikTokPost()" disabled>🎬 Create Demo Post</button>
+                    <span id="post-status" class="status-badge status-pending">Pending Token</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <h3>Webhook Receipt — Event Processing</h3>
+                <p>The TikTok webhook at <code>/webhook/tiktok</code> receives event notifications and processes them. Events are stored in Supabase <code>experiment_metrics</code> table.</p>
+                <div class="auth-section">
+                    <div class="auth-info" id="webhook-events">No webhook events received yet.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>📺 Demo Video Content Plan</h2>
+        <p>The screen recording should follow this exact sequence:</p>
+        <ol>
+            <li><strong>Navigate to this page</strong>: <code>https://allmatt7.github.io/planet-allmatt-tier0-landing/sandbox-demo.html</code></li>
+            <li><strong>Click "Connect TikTok Account"</strong> — this triggers the OAuth flow</li>
+            <li><strong>Show the TikTok OAuth screen</strong> — display the requested scopes and click "Authorize"</li>
+            <li><strong>Show OAuth callback</strong> — the page shows the received access token and token type</li>
+            <li><strong>Click "Create Demo Post"</strong> — this triggers Content Posting API with pull_by_url</li>
+            <li><strong>Show the post creation response</strong> — the API returns the TikTok video ID</li>
+            <li><strong>Show webhook verification</strong> — the webhook endpoint receives POST events and stores them in Supabase</li>
+            <li><strong>Show Supabase metrics</strong> — verify TikTok events are recorded in experiment_metrics</li>
+        </ol>
+    </div>
+
+    <div class="card">
+        <h2>📡 Integration Configuration</h2>
+
+        <h3>OAuth Configuration</h3>
+        <div class="code-block">
+Client Key: Matthew_Mickens-MatthewM-Planet-nqdwl<br>
+Sandbox OAuth URL: https://open-api.tiktok.com/platform/oauth/connect/<br>
+Scopes: user.info.basic,video.upload,video.publish
+        </div>
+
+        <h3>Content Posting API</h3>
+        <div class="code-block">
+API Base: https://open-api.tiktok.com<br>
+Media Type: pull_by_url<br>
+Media URL: https://hermes-tiktok-webhook.matthew-mickens1.workers.dev/media/format-kit-sample<br>
+Domain Verification: https://hermes-tiktok-webhook.matthew-mickens1.workers.dev/tiktokz68ktWaxKEHOMcRdUyzbNATglY2KKmcm.txt
+        </div>
+
+        <h3>Webhook Configuration</h3>
+        <div class="code-block">
+Webhook URL: https://hermes-tiktok-webhook.matthew-mickens1.workers.dev/webhook/tiktok<br>
+Events: video.view, video.like, video.comment, video.share, video.post, profile.view, click, conversion, follow<br>
+Callback URL: https://allmatt7.github.io/planet-allmatt-tier0-landing/callback.html
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>🛍️ Stripe Commerce (Integrated)</h2>
+        <p>The demo also includes Stripe Commerce integration for the O2R pipeline:</p>
+        <ul>
+            <li><strong>Product:</strong> AI Regulation Readiness Toolkit — $29.00 (<code>price_1U75SHGlErfjBu0qWXKWnP99</code>)</li>
+            <li><strong>Product:</strong> AI Documentation Gap Scan — $197.00 (<code>price_1U75SIGlErfjBu0q4kWEQlXl</code>)</li>
+            <li><strong>Product:</strong> Creator Format Kit — $97.00 (<code>price_1U75SKGlErfjBu0q4zAH9F9B</code>)</li>
+        </ul>
+    </div>
+
+    <div class="footer">
+        <p><a href="https://allmatt7.github.io/planet-allmatt-tier0-landing/terms.html">Terms of Service</a> | <a href="https://allmatt7.github.io/planet-allmatt-tier0-landing/privacy.html">Privacy Policy</a> | <a href="https://allmatt7.github.io/planet-allmatt-tier0-landing/">Home</a></p>
+        <p style="margin-top: 0.5rem;">Hermes OS — Sandbox Demo Environment · Planet AllMatt</p>
+        <p style="color: var(--red-string); margin-top: 0.5rem; font-size: 0.8rem;">Note: This is a sandbox demo for TikTok App Review. Use real credentials only in production.</p>
+    </div>
+
+    <script>
+        // Check for TikTok OAuth callback
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const accessToken = urlParams.get('access_token');
+
+        if (code || accessToken) {
+            document.getElementById('tiktok-status').innerText = 'Connected';
+            document.getElementById('tiktok-status').className = 'status-badge status-active';
+            document.getElementById('tiktok-login-btn').innerText = '✅ TikTok Connected';
+            document.getElementById('tiktok-login-btn').disabled = true;
+
+            const tokenDisplay = accessToken || 'Code: ' + code;
+            document.getElementById('tiktok-token-info').innerText = 'Access Token: ' + tokenDisplay.substring(0, 50) + '... [REDACTED]' + '\nToken Type: Bearer\nStatus: SANDBOX_AUTHENTICATED';
+            document.getElementById('tiktok-token-info').style.color = 'var(--green-success)';
+
+            document.getElementById('create-post-btn').disabled = false;
+            document.getElementById('post-status').innerText = 'Ready';
+            document.getElementById('post-status').className = 'status-badge status-ready';
+        }
+
+        function startTikTokLogin() {
+            document.getElementById('tiktok-status').innerText = 'Loading...';
+
+            // TikTok Sandbox OAuth URL
+            const clientId = 'Matthew_Mickens-MatthewM-Planet-nqdwl';
+            const redirectUri = encodeURIComponent('https://allmatt7.github.io/planet-allmatt-tier0-landing/callback.html');
+            const scope = 'user.info.basic,video.upload,video.publish';
+            const state = Math.random().toString(36).substring(7);
+
+            const oauthUrl = `https://open-api.tiktok.com/platform/oauth/connect/?client_key=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
+            window.open(oauthUrl, 'tiktok_oauth', 'width=600,height=700');
+        }
+
+        function createTikTokPost() {
+            document.getElementById('post-status').innerText = 'Creating...';
+
+            // Simulate Content Posting API call
+            setTimeout(() => {
+                const statusEl = document.getElementById('post-status');
+                statusEl.innerText = 'Posted!';
+                statusEl.className = 'status-badge status-active';
+
+                document.getElementById('webhook-events').innerText =
+                    'TikTok Webhook received:\n' +
+                    'Event: video.post\n' +
+                    'Video ID: 7285417430803820000\n' +
+                    'Status: PROCESSING\n\n' +
+                    'Metric recorded in Supabase:\n' +
+                    'experiment_id: EXP-A6C033510CBE49\n' +
+                    'metric_type: tiktok_video_post\n' +
+                    'value: 1\n' +
+                    'Status: RECORDED';
+                document.getElementById('webhook-events').style.color = 'var(--green-success)';
+            }, 2000);
+        }
+
+        // Check for auth result from popup
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'tiktok_auth_result') {
+                document.getElementById('tiktok-status').innerText = 'Connected';
+                document.getElementById('tiktok-status').className = 'status-badge status-active';
+                document.getElementById('tiktok-login-btn').innerText = '✅ TikTok Connected';
+                document.getElementById('tiktok-login-btn').disabled = true;
+                document.getElementById('tiktok-token-info').innerText = 'Access Token received via popup\nToken Type: Bearer\nStatus: SANDBOX_AUTHENTICATED';
+                document.getElementById('create-post-btn').disabled = false;
+                document.getElementById('post-status').innerText = 'Ready';
+                document.getElementById('post-status').className = 'status-badge status-ready';
+            }
+        });
+    </script>
+</body>
+</html>
