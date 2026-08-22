@@ -28,8 +28,8 @@ button { background: #e63946; color: white; border: none; padding: .8rem 2rem; f
 </div>
 
 
-    <!-- Server-side tracking form (posts to localtunnel server) -->
-    <form id="tracking-form" method="POST" action="https://pretty-clouds-check.loca.lt/api/format-kit-download" style="display: none;">
+    <!-- Server-side tracking form (posts to Supabase Edge Function) -->
+    <form id="tracking-form" method="POST" action="https://pcgurheawndjxokeoxlb.supabase.co/functions/v1/pam-tier0-forms/api/format-kit-download" style="display: none;">
         <input type="text" name="email" id="tracking-email" required>
         <input type="text" name="creator_type" id="tracking-creator-type" required>
         <input type="text" name="platform" id="tracking-platform">
@@ -62,12 +62,12 @@ document.getElementById('format-kit-form').addEventListener('submit', function(e
     const store = JSON.parse(localStorage.getItem('format_kit_downloads') || '[]');
     store.push(data);
     localStorage.setItem('format_kit_downloads', JSON.stringify(store));
-                // Also notify server for tracking
+    // Also notify server for tracking (Supabase Edge Function)
                 try {
-                    fetch('https://pretty-clouds-check.loca.lt/api/format-kit-download', {
+                    fetch('https://pcgurheawndjxokeoxlb.supabase.co/functions/v1/pam-tier0-forms/api/format-kit-download', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: document.getElementById('email')?.value || 'anonymous', creator_type: 'creator', platform: 'unknown', session_duration: 30 })
+                        body: JSON.stringify({ email: document.getElementById('email')?.value || 'anonymous', creator_type: e.target.creator_name.value || 'unknown', platform: e.target.platform.value || 'unknown', session_duration: Math.max(30, Math.round(window.performance ? performance.now()/1000 : 30) ) })
                     });
                 } catch(e) { console.log('Server tracking skipped:', e); }
     alert('Sample ready! Download link: the 3-page PDF sample will download now.');
