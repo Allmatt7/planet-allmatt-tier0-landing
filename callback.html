@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Login Callback — Hermes OS</title>
+    <meta name="description" content="TikTok Login Kit OAuth callback handler for Hermes OS.">
+    <style>
+        :root {
+            --slate-bg: #0a0f17;
+            --slate-card: #131a26;
+            --slate-border: #2a3548;
+            --red-string: #e63946;
+            --typewriter: #e9ece9;
+            --scan-gray: #8a95a8;
+            --accent-blue: #4a90d9;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--slate-bg);
+            color: var(--typewriter);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .card {
+            background: var(--slate-card);
+            border: 1px solid var(--slate-border);
+            border-radius: 6px;
+            padding: 2rem;
+            text-align: center;
+            max-width: 500px;
+            margin: 1rem;
+        }
+        .card h1 {
+            color: var(--typewriter);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .spinner {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border: 3px solid var(--slate-border);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .footer {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--slate-border);
+            color: var(--scan-gray);
+            font-size: 0.85rem;
+        }
+        .footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>✅ TikTok Login Successful</h1>
+        <p id="status">Processing your TikTok login...</p>
+        <p style="margin-top: 1rem;"><span class="spinner"></span></p>
+    </div>
+
+    <script>
+        // Extract TikTok OAuth code or access token from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const accessToken = urlParams.get('access_token');
+        const error = urlParams.get('error');
+
+        if (error) {
+            document.getElementById('status').innerText = 'Login failed: ' + error;
+        } else if (code || accessToken) {
+            // TikTok may use code (authorization code flow) or access_token (implicit flow)
+            const payload = {
+                code: code,
+                access_token: accessToken,
+                state: urlParams.get('state') || '',
+            };
+
+            // Store in localStorage for the parent window to pick up
+            localStorage.setItem('tiktok_auth_payload', JSON.stringify(payload));
+
+            document.getElementById('status').innerText = 'Login successful! You can close this window.';
+
+            // If opened in a popup, send message to opener and close
+            if (window.opener) {
+                window.opener.postMessage({
+                    type: 'tiktok_auth_result',
+                    ...payload
+                }, '*');
+                window.close();
+            } else {
+                // If not a popup, redirect to main page after delay
+                setTimeout(() => {
+                    window.location.href = 'https://allmatt7.github.io/planet-allmatt-tier0-landing/';
+                }, 2000);
+            }
+        } else {
+            document.getElementById('status').innerText = 'No authorization data received.';
+        }
+    </script>
+
+    <div class="card footer">
+        <p>Hermes OS — TikTok Login Kit Callback</p>
+        <p><a href="https://allmatt7.github.io/planet-allmatt-tier0-landing/terms.html">Terms of Service</a> | <a href="https://allmatt7.github.io/planet-allmatt-tier0-landing/privacy.html">Privacy Policy</a></p>
+    </div>
+</body>
+</html>
