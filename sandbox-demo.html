@@ -310,15 +310,7 @@ Callback URL: https://allmatt7.github.io/planet-allmatt-tier0-landing/callback.h
 
         async function startTikTokLogin() {
             document.getElementById('tiktok-status').innerText = 'Loading...';
-            try {
-                const response = await fetch('https://hermes-tiktok-webhook.matthew-mickens1.workers.dev/oauth/connect');
-                const result = await response.json();
-                if (!response.ok || !result.auth_url) throw new Error(result.error || 'OAuth setup failed');
-                window.location.assign(result.auth_url);
-            } catch (error) {
-                document.getElementById('tiktok-status').innerText = 'Connection Failed';
-                document.getElementById('tiktok-token-info').innerText = error.message;
-            }
+            window.location.assign('https://hermes-tiktok-webhook.matthew-mickens1.workers.dev/oauth/connect?redirect=1');
         }
 
         async function createTikTokPost() {
