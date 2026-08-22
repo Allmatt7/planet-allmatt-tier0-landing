@@ -288,20 +288,24 @@ Callback URL: https://allmatt7.github.io/planet-allmatt-tier0-landing/callback.h
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
         const accessToken = urlParams.get('access_token');
+        const storedAuth = JSON.parse(localStorage.getItem('tiktok_auth_payload') || 'null');
 
-        if (code || accessToken) {
+        if (code || accessToken || storedAuth?.connection_id) {
             document.getElementById('tiktok-status').innerText = 'Connected';
             document.getElementById('tiktok-status').className = 'status-badge status-active';
             document.getElementById('tiktok-login-btn').innerText = '✅ TikTok Connected';
             document.getElementById('tiktok-login-btn').disabled = true;
 
-            const tokenDisplay = accessToken || 'Code: ' + code;
-            document.getElementById('tiktok-token-info').innerText = 'Access Token: ' + tokenDisplay.substring(0, 50) + '... [REDACTED]' + '\nToken Type: Bearer\nStatus: SANDBOX_AUTHENTICATED';
+            const tokenDisplay = storedAuth?.connection_id ? 'Token stored securely by Hermes' : (accessToken || 'Code: ' + code);
+            document.getElementById('tiktok-token-info').innerText = tokenDisplay + '\nStatus: SANDBOX_AUTHENTICATED';
             document.getElementById('tiktok-token-info').style.color = 'var(--green-success)';
 
             document.getElementById('create-post-btn').disabled = false;
             document.getElementById('post-status').innerText = 'Ready';
             document.getElementById('post-status').className = 'status-badge status-ready';
+            if (storedAuth?.connection_id) {
+                sessionStorage.setItem('tiktok_connection_id', storedAuth.connection_id);
+            }
         }
 
         async function startTikTokLogin() {
@@ -310,7 +314,7 @@ Callback URL: https://allmatt7.github.io/planet-allmatt-tier0-landing/callback.h
                 const response = await fetch('https://hermes-tiktok-webhook.matthew-mickens1.workers.dev/oauth/connect');
                 const result = await response.json();
                 if (!response.ok || !result.auth_url) throw new Error(result.error || 'OAuth setup failed');
-                window.open(result.auth_url, 'tiktok_oauth', 'width=600,height=700');
+                window.location.assign(result.auth_url);
             } catch (error) {
                 document.getElementById('tiktok-status').innerText = 'Connection Failed';
                 document.getElementById('tiktok-token-info').innerText = error.message;
