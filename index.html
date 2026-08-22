@@ -208,7 +208,7 @@
             Toolkit candidate price: <strong>$29</strong> (waitlist members get 40% launch discount)
         </p>
 
-        <form id="waitlist-form" action="https://pretty-clouds-check.loca.lt/api/waitlist-submit" method="POST">
+        <form id="waitlist-form" action="https://pcgurheawndjxokeoxlb.supabase.co/functions/v1/pam-tier0-forms/api/waitlist-submit" method="POST">
 
             <div class="form-group">
                 <label for="email">Email Address *</label>
@@ -269,7 +269,7 @@
         </p>
     </div>
 
-<script>// Simple form handler - writes to a local JSON file
+<script>// Form handler — posts to permanent Supabase Edge Function
 document.getElementById('waitlist-form').addEventListener('submit', async function(e) {
     e.preventDefault();
     
@@ -294,7 +294,7 @@ document.getElementById('waitlist-form').addEventListener('submit', async functi
                        data.jurisdictions && data.jurisdictions.length > 0;
     
     // Write to JSON store (would be handled by backend in production)
-    const response = await fetch('https://pretty-clouds-check.loca.lt/api/waitlist-submit', {
+    const response = await fetch('https://pcgurheawndjxokeoxlb.supabase.co/functions/v1/pam-tier0-forms/api/waitlist-submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...data, qualified: isQualified })
