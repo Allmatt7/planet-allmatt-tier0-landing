@@ -315,7 +315,7 @@ Callback URL: https://allmatt7.github.io/planet-allmatt-tier0-landing/callback.h
             const state = Math.random().toString(36).substring(7);
 
             // Sandbox OAuth uses open-api.tiktok.com (same as production) with Sandbox Client Key
-            const oauthUrl = `https://open-api.tiktok.com/platform/oauth/connect/?client_key=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
+            const oauthUrl = `https://open-api.tiktok.com/platform/oauth/connect/?client_key=${clientId}&redirect_uri=${redirectUri}&scope=${encodeURIComponent(scope)}&state=${state}`;
             window.open(oauthUrl, 'tiktok_oauth', 'width=600,height=700');
         }
 
