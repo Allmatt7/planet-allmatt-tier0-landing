@@ -244,17 +244,18 @@
 
         <h3>OAuth Configuration</h3>
         <div class="code-block">
-Client Key: Matthew_Mickens-MatthewM-Planet-nqdwl<br>
-Sandbox OAuth URL: https://open-api.tiktok.com/platform/oauth/connect/<br>
-Scopes: user.info.basic,video.upload,video.publish
+Sandbox Client Key: sbaw44muu27vd5rkto<br>
+Sandbox OAuth URL: https://open-sandbox-api.tiktok.com/platform/oauth/connect/<br>
+Scopes: user.info.basic,video.upload,video.publish<br>
+Redirect URI: https://allmatt7.github.io/planet-allmatt-tier0-landing/callback.html
         </div>
 
         <h3>Content Posting API</h3>
         <div class="code-block">
-API Base: https://open-api.tiktok.com<br>
+Sandbox API Base: https://open-sandbox-api.tiktok.com<br>
 Media Type: pull_by_url<br>
 Media URL: https://hermes-tiktok-webhook.matthew-mickens1.workers.dev/media/format-kit-sample<br>
-Domain Verification: https://hermes-tiktok-webhook.matthew-mickens1.workers.dev/tiktokz68ktWaxKEHOMcRdUyzbNATglY2KKmcm.txt
+Domain Verification: https://hermes-tiktok-webhook.matthew-mickens1.workers.dev/tiktok85rUraKmsu8JT4NBcMX88iYTULN0DPGU.txt
         </div>
 
         <h3>Webhook Configuration</h3>
@@ -306,12 +307,12 @@ Callback URL: https://allmatt7.github.io/planet-allmatt-tier0-landing/callback.h
             document.getElementById('tiktok-status').innerText = 'Loading...';
 
             // TikTok Sandbox OAuth URL
-            const clientId = 'Matthew_Mickens-MatthewM-Planet-nqdwl';
+            const clientId = 'sbaw44muu27vd5rkto';
             const redirectUri = encodeURIComponent('https://allmatt7.github.io/planet-allmatt-tier0-landing/callback.html');
             const scope = 'user.info.basic,video.upload,video.publish';
             const state = Math.random().toString(36).substring(7);
 
-            const oauthUrl = `https://open-api.tiktok.com/platform/oauth/connect/?client_key=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
+            const oauthUrl = `https://open-sandbox-api.tiktok.com/platform/oauth/connect/?client_key=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&state=${state}`;
             window.open(oauthUrl, 'tiktok_oauth', 'width=600,height=700');
         }
 
