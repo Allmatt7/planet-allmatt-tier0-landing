@@ -104,28 +104,29 @@
                 })
                 .then(response => response.json())
                 .then(tokenData => {
-                    if (tokenData.status === 'token_received') {
-                        payload.access_token = '***REDACTED***';
-                        payload.token_type = 'Bearer';
+                    if (tokenData.status === 'connected') {
+                        payload.connection_id = tokenData.connection_id;
+                        payload.display_name = tokenData.display_name;
                         payload.token_expires_in = tokenData.expires_in;
                         localStorage.setItem('tiktok_auth_payload', JSON.stringify(payload));
-                        document.getElementById('status').innerText = 'Login successful! Access token received.';
+                        document.getElementById('status').innerText = 'Connected. TikTok token stored securely by Hermes.';
                     } else if (tokenData.error) {
                         document.getElementById('status').innerText = 'Token exchange: ' + (tokenData.note || tokenData.error);
                     } else {
                         document.getElementById('status').innerText = 'Login successful! You can close this window.';
                     }
                     
-                    // Notify parent window
-                    if (window.opener) {
+                    // Notify the opener only after a proven server-side exchange.
+                    if (window.opener && tokenData.status === 'connected') {
                         window.opener.postMessage({
                             type: 'tiktok_auth_result',
                             ...payload,
-                            token_status: tokenData.status || 'received',
-                            token_type: 'Bearer',
-                        }, '*');
+                            token_status: tokenData.status,
+                            connection_id: tokenData.connection_id,
+                            display_name: tokenData.display_name,
+                        }, 'https://allmatt7.github.io');
                         setTimeout(() => window.close(), 1000);
-                    } else {
+                    } else if (!window.opener) {
                         setTimeout(() => {
                             window.location.href = 'https://allmatt7.github.io/planet-allmatt-tier0-landing/sandbox-demo.html';
                         }, 2000);
@@ -133,13 +134,7 @@
                 })
                 .catch(err => {
                     document.getElementById('status').innerText = 'Token exchange failed: ' + err.message + '. Login data stored.';
-                    if (window.opener) {
-                        window.opener.postMessage({
-                            type: 'tiktok_auth_result',
-                            ...payload,
-                        }, '*');
-                        setTimeout(() => window.close(), 2000);
-                    } else {
+                    if (!window.opener) {
                         setTimeout(() => {
                             window.location.href = 'https://allmatt7.github.io/planet-allmatt-tier0-landing/sandbox-demo.html';
                         }, 2000);
