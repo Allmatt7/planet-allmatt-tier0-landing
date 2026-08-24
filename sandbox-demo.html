@@ -184,6 +184,7 @@
                 <p>Directs user to TikTok's Sandbox OAuth flow. Requests scopes: <code>user.info.basic</code>, <code>video.upload</code>, <code>video.publish</code>.</p>
                 <div style="margin-top: 0.5rem;">
                     <button class="btn" id="tiktok-login-btn" onclick="startTikTokLogin()">🔗 Connect TikTok Account</button>
+                    <button class="btn btn-outline" id="reset-demo-btn" onclick="resetDemoSession()" disabled>↻ Reset Demo Session</button>
                     <span id="tiktok-status" class="status-badge status-pending">Not Connected</span>
                 </div>
             </div>
@@ -297,6 +298,7 @@ Callback URL: https://allmatt7.github.io/planet-allmatt-tier0-landing/callback.h
             document.getElementById('tiktok-status').className = 'status-badge status-pending';
             document.getElementById('tiktok-login-btn').innerText = '🔗 Connect TikTok Account';
             document.getElementById('tiktok-login-btn').disabled = false;
+            document.getElementById('reset-demo-btn').disabled = !localStorage.getItem('tiktok_connection_id');
             document.getElementById('create-post-btn').disabled = true;
             document.getElementById('post-status').innerText = 'Pending Connection';
             document.getElementById('tiktok-token-info').innerText = message;
@@ -307,6 +309,7 @@ Callback URL: https://allmatt7.github.io/planet-allmatt-tier0-landing/callback.h
             document.getElementById('tiktok-status').className = 'status-badge status-active';
             document.getElementById('tiktok-login-btn').innerText = '✅ TikTok Connected';
             document.getElementById('tiktok-login-btn').disabled = true;
+            document.getElementById('reset-demo-btn').disabled = false;
             document.getElementById('tiktok-token-info').innerText = 'Token stored securely by Hermes\nAccount: ' + (result.display_name || 'TikTok Sandbox target user') + '\nStatus: VERIFIED';
             document.getElementById('tiktok-token-info').style.color = 'var(--green-success)';
             document.getElementById('create-post-btn').disabled = false;
@@ -331,6 +334,34 @@ Callback URL: https://allmatt7.github.io/planet-allmatt-tier0-landing/callback.h
         async function startTikTokLogin() {
             document.getElementById('tiktok-status').innerText = 'Loading...';
             window.location.assign('https://hermes-tiktok-webhook.matthew-mickens1.workers.dev/oauth/connect?redirect=1');
+        }
+
+        async function resetDemoSession() {
+            const connectionId = localStorage.getItem('tiktok_connection_id');
+            const button = document.getElementById('reset-demo-btn');
+            button.disabled = true;
+            button.innerText = 'Resetting…';
+            try {
+                if (connectionId) {
+                    const response = await fetch(WORKER + '/oauth/reset', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ connection_id: connectionId }),
+                    });
+                    const result = await response.json();
+                    if (!response.ok || result.reset !== true) throw new Error(result.error || 'Demo reset failed.');
+                }
+                localStorage.removeItem('tiktok_connection_id');
+                localStorage.removeItem('tiktok_auth_payload');
+                document.getElementById('webhook-events').innerText = 'Webhook endpoint ready. No event is fabricated by this demo.';
+                document.getElementById('webhook-events').style.color = '';
+                showDisconnected('Demo session reset. Click Connect TikTok Account to record the complete flow.');
+            } catch (error) {
+                button.disabled = false;
+                document.getElementById('tiktok-token-info').innerText = error.message;
+            } finally {
+                button.innerText = '↻ Reset Demo Session';
+            }
         }
 
         async function testCreatorInfo() {
