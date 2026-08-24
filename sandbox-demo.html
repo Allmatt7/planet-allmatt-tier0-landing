@@ -203,10 +203,10 @@
         <div class="step">
             <div class="step-number">3</div>
             <div class="step-content">
-                <h3>Create TikTok Post — Content Posting API</h3>
-                <p>Creates a post using the TikTok Content Posting API with <code>pull_by_url</code> media type. The video URL points to the media served by our Cloudflare Worker.</p>
+                <h3>Verify Creator Info — Content Posting API</h3>
+                <p>Runs TikTok's required Creator Info query using the real Sandbox authorization. This harmless readiness test does not create or publish a video.</p>
                 <div style="margin-top: 0.5rem;">
-                    <button class="btn btn-success" id="create-post-btn" onclick="createTikTokPost()" disabled>🎬 Create Demo Post</button>
+                    <button class="btn btn-success" id="create-post-btn" onclick="testCreatorInfo()" disabled>✅ Test Content Posting Readiness</button>
                     <span id="post-status" class="status-badge status-pending">Pending Token</span>
                 </div>
             </div>
@@ -216,9 +216,9 @@
             <div class="step-number">4</div>
             <div class="step-content">
                 <h3>Webhook Receipt — Event Processing</h3>
-                <p>The TikTok webhook at <code>/webhook/tiktok</code> receives event notifications and processes them. Events are stored in Supabase <code>experiment_metrics</code> table.</p>
+                <p>The TikTok webhook at <code>/webhook/tiktok</code> verifies signed event notifications, acknowledges them, and deduplicates repeated event IDs.</p>
                 <div class="auth-section">
-                    <div class="auth-info" id="webhook-events">No webhook events received yet.</div>
+                    <div class="auth-info" id="webhook-events">Webhook endpoint ready. No event is fabricated by this demo.</div>
                 </div>
             </div>
         </div>
@@ -231,11 +231,10 @@
             <li><strong>Navigate to this page</strong>: <code>https://allmatt7.github.io/planet-allmatt-tier0-landing/sandbox-demo.html</code></li>
             <li><strong>Click "Connect TikTok Account"</strong> — this triggers the OAuth flow</li>
             <li><strong>Show the TikTok OAuth screen</strong> — display the requested scopes and click "Authorize"</li>
-            <li><strong>Show OAuth callback</strong> — the page shows the received access token and token type</li>
-            <li><strong>Click "Create Demo Post"</strong> — this triggers Content Posting API with pull_by_url</li>
-            <li><strong>Show the post creation response</strong> — the API returns the TikTok video ID</li>
-            <li><strong>Show webhook verification</strong> — the webhook endpoint receives POST events and stores them in Supabase</li>
-            <li><strong>Show Supabase metrics</strong> — verify TikTok events are recorded in experiment_metrics</li>
+            <li><strong>Show OAuth callback</strong> — the page confirms the token was stored securely by Hermes without displaying it</li>
+            <li><strong>Click "Test Content Posting Readiness"</strong> — this runs TikTok's real Creator Info query</li>
+            <li><strong>Show the real response</strong> — creator identity, privacy options, and maximum duration are displayed</li>
+            <li><strong>Show webhook readiness</strong> — the configured HTTPS endpoint is identified without simulating an event</li>
         </ol>
     </div>
 
@@ -284,27 +283,48 @@ Callback URL: https://allmatt7.github.io/planet-allmatt-tier0-landing/callback.h
     </div>
 
     <script>
-        // Check for TikTok OAuth callback
+        const WORKER = 'https://hermes-tiktok-webhook.matthew-mickens1.workers.dev';
         const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        const accessToken = urlParams.get('access_token');
-        const storedAuth = JSON.parse(localStorage.getItem('tiktok_auth_payload') || 'null');
+        const returnedConnection = urlParams.get('connection_id');
+        localStorage.removeItem('tiktok_auth_payload');
+        if (returnedConnection) {
+            localStorage.setItem('tiktok_connection_id', returnedConnection);
+            history.replaceState({}, document.title, location.pathname);
+        }
 
-        if (code || accessToken || storedAuth?.connection_id) {
+        function showDisconnected(message = 'No verified Sandbox connection. Click Connect TikTok Account.') {
+            document.getElementById('tiktok-status').innerText = 'Not Connected';
+            document.getElementById('tiktok-status').className = 'status-badge status-pending';
+            document.getElementById('tiktok-login-btn').innerText = '🔗 Connect TikTok Account';
+            document.getElementById('tiktok-login-btn').disabled = false;
+            document.getElementById('create-post-btn').disabled = true;
+            document.getElementById('post-status').innerText = 'Pending Connection';
+            document.getElementById('tiktok-token-info').innerText = message;
+        }
+
+        function showConnected(result) {
             document.getElementById('tiktok-status').innerText = 'Connected';
             document.getElementById('tiktok-status').className = 'status-badge status-active';
             document.getElementById('tiktok-login-btn').innerText = '✅ TikTok Connected';
             document.getElementById('tiktok-login-btn').disabled = true;
-
-            const tokenDisplay = storedAuth?.connection_id ? 'Token stored securely by Hermes' : (accessToken || 'Code: ' + code);
-            document.getElementById('tiktok-token-info').innerText = tokenDisplay + '\nStatus: SANDBOX_AUTHENTICATED';
+            document.getElementById('tiktok-token-info').innerText = 'Token stored securely by Hermes\nAccount: ' + (result.display_name || 'TikTok Sandbox target user') + '\nStatus: VERIFIED';
             document.getElementById('tiktok-token-info').style.color = 'var(--green-success)';
-
             document.getElementById('create-post-btn').disabled = false;
             document.getElementById('post-status').innerText = 'Ready';
             document.getElementById('post-status').className = 'status-badge status-ready';
-            if (storedAuth?.connection_id) {
-                sessionStorage.setItem('tiktok_connection_id', storedAuth.connection_id);
+        }
+
+        async function verifyStoredConnection() {
+            const connectionId = localStorage.getItem('tiktok_connection_id');
+            if (!connectionId) return showDisconnected();
+            try {
+                const response = await fetch(WORKER + '/oauth/status?connection_id=' + encodeURIComponent(connectionId));
+                const result = await response.json();
+                if (!response.ok || result.connected !== true) throw new Error(result.provider_error || result.error || 'Connection is no longer valid.');
+                showConnected(result);
+            } catch (error) {
+                localStorage.removeItem('tiktok_connection_id');
+                showDisconnected(error.message);
             }
         }
 
@@ -313,9 +333,9 @@ Callback URL: https://allmatt7.github.io/planet-allmatt-tier0-landing/callback.h
             window.location.assign('https://hermes-tiktok-webhook.matthew-mickens1.workers.dev/oauth/connect?redirect=1');
         }
 
-        async function createTikTokPost() {
+        async function testCreatorInfo() {
             document.getElementById('post-status').innerText = 'Checking...';
-            const connectionId = sessionStorage.getItem('tiktok_connection_id');
+            const connectionId = localStorage.getItem('tiktok_connection_id');
             try {
                 const response = await fetch('https://hermes-tiktok-webhook.matthew-mickens1.workers.dev/api/tiktok/capabilities', {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
@@ -333,20 +353,7 @@ Callback URL: https://allmatt7.github.io/planet-allmatt-tier0-landing/callback.h
             }
         }
 
-        // Check for auth result from popup
-        window.addEventListener('message', function(event) {
-            if (event.origin === 'https://allmatt7.github.io' && event.data && event.data.type === 'tiktok_auth_result') {
-                document.getElementById('tiktok-status').innerText = 'Connected';
-                document.getElementById('tiktok-status').className = 'status-badge status-active';
-                document.getElementById('tiktok-login-btn').innerText = '✅ TikTok Connected';
-                document.getElementById('tiktok-login-btn').disabled = true;
-                sessionStorage.setItem('tiktok_connection_id', event.data.connection_id);
-                document.getElementById('tiktok-token-info').innerText = 'Sandbox token stored securely by Hermes\nAccount: ' + (event.data.display_name || 'TikTok target user') + '\nStatus: SANDBOX_AUTHENTICATED';
-                document.getElementById('create-post-btn').disabled = false;
-                document.getElementById('post-status').innerText = 'Ready';
-                document.getElementById('post-status').className = 'status-badge status-ready';
-            }
-        });
+        verifyStoredConnection();
     </script>
 </body>
 </html>

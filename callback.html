@@ -72,91 +72,39 @@
     </div>
 
     <script>
-        // Extract TikTok OAuth code or access token from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        const accessToken = urlParams.get('access_token');
-        const error = urlParams.get('error');
+        const WORKER = 'https://hermes-tiktok-webhook.matthew-mickens1.workers.dev';
+        const DEMO = 'https://allmatt7.github.io/planet-allmatt-tier0-landing/sandbox-demo.html';
+        const params = new URLSearchParams(window.location.search);
 
-        if (error) {
-            document.getElementById('status').innerText = 'Login failed: ' + error;
-        } else if (code || accessToken) {
-            // TikTok may use code (authorization code flow) or access_token (implicit flow)
-            const payload = {
-                code: code,
-                access_token: accessToken,
-                state: urlParams.get('state') || '',
-            };
+        async function completeLogin() {
+            const providerError = params.get('error_description') || params.get('error');
+            const code = params.get('code');
+            const state = params.get('state');
+            if (providerError) throw new Error(providerError);
+            if (!code || !state) throw new Error('TikTok did not return a complete authorization code and state.');
 
-            // Store in localStorage for the parent window to pick up
-            localStorage.setItem('tiktok_auth_payload', JSON.stringify(payload));
-
-            // If we have a code, exchange it for an access token via our worker
-            if (code) {
-                document.getElementById('status').innerText = 'Exchanging authorization code for access token...';
-                
-                // Exchange code for token via Cloudflare Worker
-                fetch('https://hermes-tiktok-webhook.matthew-mickens1.workers.dev/oauth/callback?code=' + encodeURIComponent(code) + '&state=' + encodeURIComponent(urlParams.get('state') || ''), {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                })
-                .then(response => response.json())
-                .then(tokenData => {
-                    if (tokenData.status === 'connected') {
-                        payload.connection_id = tokenData.connection_id;
-                        payload.display_name = tokenData.display_name;
-                        payload.token_expires_in = tokenData.expires_in;
-                        localStorage.setItem('tiktok_auth_payload', JSON.stringify(payload));
-                        document.getElementById('status').innerText = 'Connected. TikTok token stored securely by Hermes.';
-                    } else if (tokenData.error) {
-                        document.getElementById('status').innerText = 'Token exchange: ' + (tokenData.note || tokenData.error);
-                    } else {
-                        document.getElementById('status').innerText = 'Login successful! You can close this window.';
-                    }
-                    
-                    // Notify the opener only after a proven server-side exchange.
-                    if (window.opener && tokenData.status === 'connected') {
-                        window.opener.postMessage({
-                            type: 'tiktok_auth_result',
-                            ...payload,
-                            token_status: tokenData.status,
-                            connection_id: tokenData.connection_id,
-                            display_name: tokenData.display_name,
-                        }, 'https://allmatt7.github.io');
-                        setTimeout(() => window.close(), 1000);
-                    } else if (!window.opener) {
-                        setTimeout(() => {
-                            window.location.href = 'https://allmatt7.github.io/planet-allmatt-tier0-landing/sandbox-demo.html';
-                        }, 2000);
-                    }
-                })
-                .catch(err => {
-                    document.getElementById('status').innerText = 'Token exchange failed: ' + err.message + '. Login data stored.';
-                    if (!window.opener) {
-                        setTimeout(() => {
-                            window.location.href = 'https://allmatt7.github.io/planet-allmatt-tier0-landing/sandbox-demo.html';
-                        }, 2000);
-                    }
-                });
-            } else {
-                document.getElementById('status').innerText = 'Login successful! You can close this window.';
-                if (window.opener) {
-                    window.opener.postMessage({
-                        type: 'tiktok_auth_result',
-                        ...payload,
-                    }, '*');
-                    window.close();
-                } else {
-                    setTimeout(() => {
-                        window.location.href = 'https://allmatt7.github.io/planet-allmatt-tier0-landing/';
-                    }, 2000);
-                }
+            const response = await fetch(WORKER + '/oauth/callback?code=' + encodeURIComponent(code) + '&state=' + encodeURIComponent(state), {
+                headers: { 'Accept': 'application/json' },
+            });
+            const result = await response.json();
+            if (!response.ok || result.status !== 'connected' || !result.connection_id) {
+                throw new Error(result.provider_error || result.error || 'TikTok account verification did not complete.');
             }
-        } else {
-            document.getElementById('status').innerText = 'No authorization data received.';
+
+            // Only the opaque Hermes connection ID reaches browser storage.
+            localStorage.removeItem('tiktok_auth_payload');
+            localStorage.setItem('tiktok_connection_id', result.connection_id);
+            document.getElementById('status').innerText = 'Connected. TikTok tokens are stored securely by Hermes.';
+            const next = new URL(DEMO);
+            next.searchParams.set('connection_id', result.connection_id);
+            setTimeout(() => window.location.replace(next.toString()), 700);
         }
+
+        completeLogin().catch(error => {
+            document.querySelector('.card h1').innerText = 'TikTok connection failed';
+            document.getElementById('status').innerText = error.message;
+            document.querySelector('.spinner').style.display = 'none';
+        });
     </script>
 
     <div class="card footer">
